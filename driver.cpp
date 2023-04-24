@@ -20,6 +20,8 @@ void inputReg(string, uint32_t);
 
 int nFlags(uint32_t);
 int zFlags(uint32_t);
+int cFlags(uint32_t);
+int vFlags(uint32_t);
 
 uint32_t reg1 = 0, reg2 = 0, reg3 = 0, reg4 = 0, reg5 = 0, reg6 = 0, reg7 = 0, reg0 = 0;
 
@@ -28,10 +30,13 @@ int main(int argc, char* argv[]) //argc/argv are included when running this prog
 
 
     string opToDo;
+    bool cCheck;
     string regOne, regTwo, regThree;
-    uint32_t firstNum, secondNum, newNum;
+    uint32_t firstNum = 0, secondNum = 0, newNum = 0;
     int nFlag = 0;
     int zFlag = 0;
+    int cFlag = 0;
+    int vFlag = 0;
     //This checks if executable and file were both input correctly, and if they aren't, ends the program
     if (argc != 2){
       
@@ -43,7 +48,7 @@ int main(int argc, char* argv[]) //argc/argv are included when running this prog
     else{
 
     //This is a variable holding the textfile
-    string numberList = "test.txt";
+    string numberList = "Programming-Project-3.txt";
 
     //Use the ifstream library to make a variable
     ifstream inputFile;
@@ -62,7 +67,6 @@ int main(int argc, char* argv[]) //argc/argv are included when running this prog
     
     //Use the insertion operator as well as the hex converter to store the lines of the textfile into variables
     //It should go as long as the input file has content to read
-    //while(inputFile >> opToDo >> regOne >> hex >> secondNum || inputFile >> opToDo >> regOne >> regTwo >> regThree || inputFile >> opToDo >> regOne >> regTwo >> hex >> firstNum || inputFile >> opToDo >> regOne >> regTwo)
     while(!inputFile.eof())
     {
         inputFile >> opToDo;
@@ -106,70 +110,130 @@ int main(int argc, char* argv[]) //argc/argv are included when running this prog
                 }
 
                 //Output all variables using cout, and make sure to convert all numbers to hex
-                cout << opToDo << " " << hex << regOne << ", 0x" << hex << secondNum << endl;
+                cout << opToDo << " " << hex << regOne << " 0x" << hex << secondNum << endl;
                 cout << "R0: 0x" << hex << reg0 << " R1: 0x" << hex << reg1 << " R2: 0x" << hex << reg2 << " R3: 0x" << hex << reg3 << endl;
                 cout << "R4: 0x" << hex << reg4 << " R5: 0x" << hex << reg5 << " R6: 0x" << hex << reg6 << " R7: 0x" << hex << reg7 << endl;
-                cout << "N: " << nFlag << " Z: " << zFlag << endl;
+                cout << "N: " << nFlag << " Z: " << zFlag << " C: " << cFlag << " V: " << vFlag << endl;
             }
-        }
+
         //Check if the operation preformed is addition
         if(opToDo == "ADD" || opToDo == "ADDS")
         {
 
             inputFile >> regOne >> regTwo >> regThree;
+            firstNum = findRegOne(regTwo);
+            secondNum = findRegTwo(regThree);
             
             //Add the two hex numbers together
             newNum = firstNum + secondNum;
+
+            inputReg(regOne, newNum);
 
             //set flags if they can be set
             if(opToDo == "ADDS")
             {
                 nFlag = nFlags(newNum);
                 zFlag = zFlags(newNum);
+                if(newNum > 4294967295)
+                {
+                    cFlag = 1;
+                }
+                else
+                {
+                    cFlag = 0;   
+                }
+                int32_t check = newNum;
+                if(firstNum > 0 && secondNum > 0 && check < 0 ||firstNum < 0 && secondNum < 0 && check > 0 )
+                {
+                    vFlag = 1;
+                }
+                else
+                {
+                    vFlag = 0;
+                }
             }
 
             //Output all variables using cout, and make sure to convert all numbers to hex
-            cout << opToDo << " 0x" << hex << firstNum << " 0x" << hex << secondNum << ": <0x" << newNum << ">" << endl;
-
-            
+            cout << opToDo << " " << hex << regOne << " " << regTwo << " " << regThree << endl;
+            cout << "R0: 0x" << hex << reg0 << " R1: 0x" << hex << reg1 << " R2: 0x" << hex << reg2 << " R3: 0x" << hex << reg3 << endl;
+            cout << "R4: 0x" << hex << reg4 << " R5: 0x" << hex << reg5 << " R6: 0x" << hex << reg6 << " R7: 0x" << hex << reg7 << endl;
+            cout << "N: " << nFlag << " Z: " << zFlag << " C: " << cFlag << " V: " << vFlag << endl;
         }
 
         //check for sub operation
         if(opToDo == "SUB" || opToDo == "SUBS")
         {
             //subtract varaiables
+            inputFile >> regOne >> regTwo >> regThree;
+            firstNum = findRegOne(regTwo);
+            secondNum = findRegTwo(regThree);
             newNum = firstNum - secondNum;
+
+            inputReg(regOne, newNum);
 
             if(opToDo == "SUBS")
             {
                 nFlag = nFlags(newNum);
                 zFlag = zFlags(newNum);
+                if(newNum > 0)
+                {
+                    cFlag = 1;
+                }
+                else
+                {
+                    cFlag = 0;
+                }
+                int32_t check = newNum;
+                if(firstNum > 0 && secondNum > 0 && check < 0 ||firstNum < 0 && secondNum < 0 && check > 0 )
+                {
+                    vFlag = 1;
+                }
+                else
+                {
+                    vFlag = 0;
+                }
             }
 
-            cout << opToDo << " 0x" << hex << firstNum << " 0x" << hex << secondNum << ": <0x" << newNum << ">" << endl;
-
+            cout << opToDo << " " << hex << regOne << " " << regTwo << " " << regThree << endl;
+            cout << "R0: 0x" << hex << reg0 << " R1: 0x" << hex << reg1 << " R2: 0x" << hex << reg2 << " R3: 0x" << hex << reg3 << endl;
+            cout << "R4: 0x" << hex << reg4 << " R5: 0x" << hex << reg5 << " R6: 0x" << hex << reg6 << " R7: 0x" << hex << reg7 << endl;
+            cout << "N: " << nFlag << " Z: " << zFlag << " C: " << cFlag << " V: " << vFlag << endl;
         }
 
         //check for AND operation
-        if(opToDo == "AND" || opToDo == "ANDS")
+        if(opToDo == "AND" || opToDo == "ANDS" || opToDo == "ands")
         {
+
+            inputFile >> regOne >> regTwo >> regThree;
+            firstNum = findRegOne(regTwo);
+            secondNum = findRegTwo(regThree);
             //do a bitwise AND operation
             newNum = firstNum & secondNum;
 
-            if(opToDo == "ANDS")
+            inputReg(regOne, newNum);
+
+            if(opToDo == "ANDS" || opToDo == "ands")
             {
                 nFlag = nFlags(newNum);
                 zFlag = zFlags(newNum);
             }
 
-            cout << opToDo << " 0x" << hex << firstNum << " 0x" << hex << secondNum << ": <0x" << newNum << ">" << endl;
+            cout << opToDo << " " << hex << regOne << " " << regTwo << " " << regThree << endl;
+            cout << "R0: 0x" << hex << reg0 << " R1: 0x" << hex << reg1 << " R2: 0x" << hex << reg2 << " R3: 0x" << hex << reg3 << endl;
+            cout << "R4: 0x" << hex << reg4 << " R5: 0x" << hex << reg5 << " R6: 0x" << hex << reg6 << " R7: 0x" << hex << reg7 << endl;
+            cout << "N: " << nFlag << " Z: " << zFlag << " C: " << cFlag << " V: " << vFlag << endl;
         }
 
         //Check for OR operation
-        if(opToDo == "ORR" || opToDo == "ORRS")
+        if(opToDo == "ORR" || opToDo == "ORRS" || opToDo == "orr")
         {
+            inputFile >> regOne >> regTwo >> regThree;
+            firstNum = findRegOne(regTwo);
+            secondNum = findRegTwo(regThree);
             //do a bitwise OR operation
             newNum = firstNum | secondNum;
+
+            inputReg(regOne, newNum);
 
             if(opToDo == "ORRS")
             {
@@ -177,14 +241,22 @@ int main(int argc, char* argv[]) //argc/argv are included when running this prog
                 zFlag = zFlags(newNum);
             }
 
-            cout << opToDo << " 0x" << hex << firstNum << " 0x" << hex << secondNum << ": <0x" << newNum << ">" << endl;
+            cout << opToDo << " " << hex << regOne << " " << regTwo << " " << regThree << endl;
+            cout << "R0: 0x" << hex << reg0 << " R1: 0x" << hex << reg1 << " R2: 0x" << hex << reg2 << " R3: 0x" << hex << reg3 << endl;
+            cout << "R4: 0x" << hex << reg4 << " R5: 0x" << hex << reg5 << " R6: 0x" << hex << reg6 << " R7: 0x" << hex << reg7 << endl;
+            cout << "N: " << nFlag << " Z: " << zFlag << " C: " << cFlag << " V: " << vFlag << endl;
         }
 
         //Check for NOT operation
         if(opToDo == "NOT" || opToDo == "NOTS")
         {
+            inputFile >> regOne >> regTwo >> regThree;
+            firstNum = findRegOne(regTwo);
+            secondNum = findRegTwo(regThree);
             //preform bitwise NOT operation
             newNum = ~firstNum;
+
+            inputReg(regOne, newNum);
 
             if(opToDo == "NOTS")
             {
@@ -192,14 +264,22 @@ int main(int argc, char* argv[]) //argc/argv are included when running this prog
                 zFlag = zFlags(newNum);
             }
 
-            cout << opToDo << " 0x" << hex << firstNum << hex << ": <0x" << newNum << ">" << endl;
+            cout << opToDo << " " << hex << regOne << " " << regTwo << " " << regThree << endl;
+            cout << "R0: 0x" << hex << reg0 << " R1: 0x" << hex << reg1 << " R2: 0x" << hex << reg2 << " R3: 0x" << hex << reg3 << endl;
+            cout << "R4: 0x" << hex << reg4 << " R5: 0x" << hex << reg5 << " R6: 0x" << hex << reg6 << " R7: 0x" << hex << reg7 << endl;
+            cout << "N: " << nFlag << " Z: " << zFlag << " C: " << cFlag << " V: " << vFlag << endl;
         }
 
         //Check for XOR operation
-        if(opToDo == "XOR" || opToDo == "XORS")
+        if(opToDo == "XOR" || opToDo == "XORS" || opToDo == "xor")
         {
+            inputFile >> regOne >> regTwo >> regThree;
+            firstNum = findRegOne(regTwo);
+            secondNum = findRegTwo(regThree);
             //do bitwise XOR operation
             newNum = firstNum ^ secondNum;
+
+            inputReg(regOne, newNum);
 
             if(opToDo == "XORS")
             {
@@ -207,67 +287,117 @@ int main(int argc, char* argv[]) //argc/argv are included when running this prog
                 zFlag = zFlags(newNum);
             }
 
-            cout << opToDo << " 0x" << hex << firstNum << " 0x" << hex << secondNum << ": <0x" << newNum << ">" << endl;
-        }
-
-        //check for ASR operation
-        if(opToDo == "ASR" || opToDo == "ASRS")
-        {
-            //convert to signed
-            int32_t newestNum = firstNum;
-
-            //shift to the right
-            newNum = newestNum / pow(2, secondNum);
-
-            if(opToDo == "ASRS")
-            {
-                nFlag = nFlags(newNum);
-                zFlag = zFlags(newNum);
-            }
-
-            if(newNum != 0)
-            {
-                cout << opToDo << " 0x" << hex << firstNum << " " << hex << secondNum << ": <0x" << (newNum) << ">" << endl;
-            }
-            else
-            {
-                cout << opToDo << " 0x" << hex << firstNum << " " << hex << secondNum << ": <0x" << (newNum-1) << ">" << endl;
-            }
-
+            cout << opToDo << " " << hex << regOne << " " << regTwo << " " << regThree << endl;
+            cout << "R0: 0x" << hex << reg0 << " R1: 0x" << hex << reg1 << " R2: 0x" << hex << reg2 << " R3: 0x" << hex << reg3 << endl;
+            cout << "R4: 0x" << hex << reg4 << " R5: 0x" << hex << reg5 << " R6: 0x" << hex << reg6 << " R7: 0x" << hex << reg7 << endl;
+            cout << "N: " << nFlag << " Z: " << zFlag << " C: " << cFlag << " V: " << vFlag << endl;
         }
 
         //Check for LSR operation
-        if(opToDo == "LSR" || opToDo == "LSRS")
+        if(opToDo == "LSR" || opToDo == "LSRS" || opToDo == "lsrs")
         {
+            inputFile >> regOne >> regTwo >> secondNum;
+            firstNum = findRegOne(regTwo);
             //preform LSR op
             newNum = firstNum / pow(2, secondNum);
 
-            if(opToDo == "LSRS")
+            inputReg(regOne, newNum);
+
+
+            if(opToDo == "LSRS" || opToDo == "lsrs")
             {
                 nFlag = nFlags(newNum);
                 zFlag = zFlags(newNum);
+                cFlag = 1;
             }
 
-            cout << opToDo << " 0x" << hex << firstNum << " " << hex << secondNum << ": <0x" << newNum << ">" << endl;
+            cout << opToDo << " " << hex << regOne << " " << regTwo << " #" << secondNum << endl;
+            cout << "R0: 0x" << hex << reg0 << " R1: 0x" << hex << reg1 << " R2: 0x" << hex << reg2 << " R3: 0x" << hex << reg3 << endl;
+            cout << "R4: 0x" << hex << reg4 << " R5: 0x" << hex << reg5 << " R6: 0x" << hex << reg6 << " R7: 0x" << hex << reg7 << endl;
+            cout << "N: " << nFlag << " Z: " << zFlag << " C: " << cFlag << " V: " << vFlag << endl;
         }
 
         //check for LSL operation
         if(opToDo == "LSL" || opToDo == "LSLS")
         {
+            inputFile >> regOne >> regTwo >> secondNum;
+            firstNum = findRegOne(regTwo);
             //preform LSL op
             newNum = firstNum * pow(2, secondNum);
+
+            inputReg(regOne, newNum);
 
             if(opToDo == "LSLS")
             {
                 nFlag = nFlags(newNum);
                 zFlag = zFlags(newNum);
+                if(firstNum > 2147483647 && newNum <= 2147483647)
+                {
+                    cFlag = 1;
+                }
+                else{
+                    cFlag = 0;
+                }
             }
 
-            cout << opToDo << " 0x" << hex << firstNum << " " << hex << secondNum << ": <0x" << newNum << ">" << endl;
+            cout << opToDo << " " << hex << regOne << " " << regTwo << " #" << secondNum << endl;
+            cout << "R0: 0x" << hex << reg0 << " R1: 0x" << hex << reg1 << " R2: 0x" << hex << reg2 << " R3: 0x" << hex << reg3 << endl;
+            cout << "R4: 0x" << hex << reg4 << " R5: 0x" << hex << reg5 << " R6: 0x" << hex << reg6 << " R7: 0x" << hex << reg7 << endl;
+            cout << "N: " << nFlag << " Z: " << zFlag << " C: " << cFlag << " V: " << vFlag << endl;
         }
 
-    }
+        if(opToDo == "CMP")
+        {
+            inputFile >> regTwo >> regThree;
+            firstNum = findRegOne(regTwo);
+            secondNum = findRegTwo(regThree);
+            //preform LSL op
+            newNum = firstNum - secondNum;
 
+            nFlag = nFlags(newNum);
+            zFlag = zFlags(newNum);
+            if(newNum > 0)
+            {
+                cFlag = 1;
+            }
+            else
+            {
+                cFlag = 0;
+            }
+            int32_t check = newNum;
+            if(firstNum > 0 && secondNum > 0 && check < 0 ||firstNum < 0 && secondNum < 0 && check > 0 )
+            {
+                vFlag = 1;
+            }
+            else
+            {
+                vFlag = 0;
+            }
+
+            cout << opToDo << " " << regTwo << " " << regThree << endl;
+            cout << "R0: 0x" << hex << reg0 << " R1: 0x" << hex << reg1 << " R2: 0x" << hex << reg2 << " R3: 0x" << hex << reg3 << endl;
+            cout << "R4: 0x" << hex << reg4 << " R5: 0x" << hex << reg5 << " R6: 0x" << hex << reg6 << " R7: 0x" << hex << reg7 << endl;
+            cout << "N: " << nFlag << " Z: " << zFlag << " C: " << cFlag << " V: " << vFlag << endl;
+        }
+
+        if(opToDo == "tst")
+        {
+            inputFile >> regTwo >> regThree;
+            firstNum = findRegOne(regTwo);
+            secondNum = findRegTwo(regThree);
+            //do a bitwise AND operation
+            newNum = firstNum & secondNum;
+
+            nFlag = nFlags(newNum);
+            zFlag = zFlags(newNum);
+
+            cout << opToDo << " " << regTwo << " " << regThree << endl;
+            cout << "R0: 0x" << hex << reg0 << " R1: 0x" << hex << reg1 << " R2: 0x" << hex << reg2 << " R3: 0x" << hex << reg3 << endl;
+            cout << "R4: 0x" << hex << reg4 << " R5: 0x" << hex << reg5 << " R6: 0x" << hex << reg6 << " R7: 0x" << hex << reg7 << endl;
+            cout << "N: " << nFlag << " Z: " << zFlag << " C: " << cFlag << " V: " << vFlag << endl;
+        }
+    }
+    }
     return 0;
 }
 
@@ -304,107 +434,107 @@ int zFlags(uint32_t num)
 
 uint32_t findRegOne(string regOne)
 {
-    if(regOne == "r0," || regOne == "R0,")
-        {
-            return reg0;
-        }
-        else if(regOne == "r1," || regOne == "R1,")
-        {
-            return reg1;
-        }
-        else if(regOne == "r2," || regOne == "R2,")
-        {
-            return reg2;
-        }
-        else if(regOne == "r3," || regOne == "R3,")
-        {
-            return reg3;
-        }
-        else if(regOne == "r4," || regOne == "R4,")
-        {
-            return reg4;
-        }
-        else if(regOne == "r5," || regOne == "R5,")
-        {
-            return reg5;
-        }
-        else if(regOne == "r6," || regOne == "R6,")
-        {
-            return reg6;
-        }
-        else if(regOne == "r7," || regOne == "R7,")
-        {
-            return reg7;
-        }
+    if(regOne == "r0," || regOne == "R0," || regOne == "r0" || regOne == "R0")
+    {
+        return reg0;
+    }
+    else if(regOne == "r1," || regOne == "R1," || regOne == "r1" || regOne == "R1")
+    {
+        return reg1;
+    }
+    else if(regOne == "r2," || regOne == "R2," || regOne == "r2" || regOne == "R2")
+    {
+        return reg2;
+    }
+    else if(regOne == "r3," || regOne == "R3," || regOne == "r3" || regOne == "R3")
+    {
+        return reg3;
+    }
+    else if(regOne == "r4," || regOne == "R4," || regOne == "r4" || regOne == "R4")
+    {
+        return reg4;
+    }
+    else if(regOne == "r5," || regOne == "R5," || regOne == "r5" || regOne == "R5")
+    {
+        return reg5;
+    }
+    else if(regOne == "r6," || regOne == "R6," || regOne == "r6" || regOne == "R6")
+    {
+        return reg6;
+    }
+    else
+    {
+        return reg7;
+    }
 }
 
 uint32_t findRegTwo(string regOne)
 {
-    if(regOne == "r0," || regOne == "R0,")
-        {
-            return reg0;
-        }
-        else if(regOne == "r1," || regOne == "R1,")
-        {
-            return reg1;
-        }
-        else if(regOne == "r2," || regOne == "R2,")
-        {
-            return reg2;
-        }
-        else if(regOne == "r3," || regOne == "R3,")
-        {
-            return reg3;
-        }
-        else if(regOne == "r4," || regOne == "R4,")
-        {
-            return reg4;
-        }
-        else if(regOne == "r5," || regOne == "R5,")
-        {
-            return reg5;
-        }
-        else if(regOne == "r6," || regOne == "R6,")
-        {
-            return reg6;
-        }
-        else if(regOne == "r7," || regOne == "R7,")
-        {
-            return reg7;
-        }
+    if(regOne == "r0," || regOne == "R0," || regOne == "r0" || regOne == "R0")
+    {
+        return reg0;
+    }
+    else if(regOne == "r1," || regOne == "R1," || regOne == "r1" || regOne == "R1")
+    {
+        return reg1;
+    }
+    else if(regOne == "r2," || regOne == "R2," || regOne == "r2" || regOne == "R2")
+    {
+        return reg2;
+    }
+    else if(regOne == "r3," || regOne == "R3," || regOne == "r3" || regOne == "R3")
+    {
+        return reg3;
+    }
+    else if(regOne == "r4," || regOne == "R4," || regOne == "r4" || regOne == "R4")
+    {
+        return reg4;
+    }
+    else if(regOne == "r5," || regOne == "R5," || regOne == "r5" || regOne == "R5")
+    {
+        return reg5;
+    }
+    else if(regOne == "r6," || regOne == "R6," || regOne == "r6" || regOne == "R6")
+    {
+        return reg6;
+    }
+    else
+    {
+        return reg7;
+    }
 }
 
 void inputReg(string regOne, uint32_t input)
 {
-    if(regOne == "r0," || regOne == "R0,")
+        if(regOne == "r0," || regOne == "R0," || regOne == "r0" || regOne == "R0")
         {
             reg0 = input;
         }
-        else if(regOne == "r1," || regOne == "R1,")
+        else if(regOne == "r1," || regOne == "R1," || regOne == "r1" || regOne == "R1")
         {
             reg1 = input;
         }
-        else if(regOne == "r2," || regOne == "R2,")
+        else if(regOne == "r2," || regOne == "R2," || regOne == "r2" || regOne == "R2")
         {
             reg2 = input;
         }
-        else if(regOne == "r3," || regOne == "R3,")
+        else if(regOne == "r3," || regOne == "R3," || regOne == "r3" || regOne == "R3")
         {
             reg3 = input;
         }
-        else if(regOne == "r4," || regOne == "R4,")
+        else if(regOne == "r4," || regOne == "R4," || regOne == "r4" || regOne == "R4")
         {
             reg4 = input;
         }
-        else if(regOne == "r5," || regOne == "R5,")
+        else if(regOne == "r5," || regOne == "R5," || regOne == "r5" || regOne == "R5")
         {
             reg5 = input;
         }
-        else if(regOne == "r6," || regOne == "R6,")
+        else if(regOne == "r6," || regOne == "R6," || regOne == "r6" || regOne == "R6")
         {
             reg6 = input;
         }
-        else if(regOne == "r7," || regOne == "R7,")
+        else
         {
             reg7 = input;
         }
