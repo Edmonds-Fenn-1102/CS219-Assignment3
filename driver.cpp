@@ -14,13 +14,24 @@ using namespace std;
 
 //Prototype for the readfile function
 int readFile(string);
+uint32_t findRegOne(string);
+uint32_t findRegTwo(string);
+void inputReg(string, uint32_t);
 
 int nFlags(uint32_t);
 int zFlags(uint32_t);
 
+uint32_t reg1 = 0, reg2 = 0, reg3 = 0, reg4 = 0, reg5 = 0, reg6 = 0, reg7 = 0, reg0 = 0;
+
 int main(int argc, char* argv[]) //argc/argv are included when running this program, which is the executable name and the text file
 {
 
+
+    string opToDo;
+    string regOne, regTwo, regThree;
+    uint32_t firstNum, secondNum, newNum;
+    int nFlag = 0;
+    int zFlag = 0;
     //This checks if executable and file were both input correctly, and if they aren't, ends the program
     if (argc != 2){
       
@@ -32,32 +43,15 @@ int main(int argc, char* argv[]) //argc/argv are included when running this prog
     else{
 
     //This is a variable holding the textfile
-    string numberList = "Programming-Project-2.txt";
+    string numberList = "test.txt";
 
-    //Call the function that will read, calculate, and output the content of the textfile 
-    int hex = readFile(numberList);
-
-    }
-
-    return 0;
-}
-
-//Implementation of the readfile function
-int readFile(string readList)
-{
     //Use the ifstream library to make a variable
     ifstream inputFile;
 
     //These variables hold the input from the textfile, being the operation and numbers respectivly
-    string opToDo;
-    string regOne, regTwo, regThree;
-    uint32_t firstNum, secondNum, newNum;
-    uint32_t reg1 = 0, reg2 = 0, reg3 = 0, reg4 = 0, reg5 = 0, reg6 = 0, reg7 = 0, reg0 = 0;
-    int nFlag = 0;
-    int zFlag = 0;
 
     //This opens the file for reading
-    inputFile.open(readList);
+    inputFile.open(numberList);
 
     //Check if the inputfile is able to be open for reading, and end the program if it cannot
     if(!inputFile)
@@ -71,53 +65,59 @@ int readFile(string readList)
     //while(inputFile >> opToDo >> regOne >> hex >> secondNum || inputFile >> opToDo >> regOne >> regTwo >> regThree || inputFile >> opToDo >> regOne >> regTwo >> hex >> firstNum || inputFile >> opToDo >> regOne >> regTwo)
     while(!inputFile.eof())
     {
-        if(fin >> opToDo >> regOne >>hex >> secondNum)
-        {
+        inputFile >> opToDo;
+        
             //Check if the operation preformed is addition
             if(opToDo == "MOV" || opToDo == "mov")
             {
-                if(regOne == "r0")
+                inputFile >> regOne >> hex >> secondNum;
+
+                if(regOne == "r0," || regOne == "R0,")
                 {
                     reg0 = secondNum;
                 }
-                else if(regOne == "r1")
+                else if(regOne == "r1," || regOne == "R1,")
                 {
                     reg1 = secondNum;
                 }
-                else if(regOne == "r2")
+                else if(regOne == "r2," || regOne == "R2,")
                 {
                     reg2 = secondNum;
                 }
-                else if(regOne == "r3")
+                else if(regOne == "r3," || regOne == "R3,")
                 {
                     reg3 = secondNum;
                 }
-                else if(regOne == "r4")
+                else if(regOne == "r4," || regOne == "R4,")
                 {
                     reg4 = secondNum;
                 }
-                else if(regOne == "r5")
+                else if(regOne == "r5," || regOne == "R5,")
                 {
                     reg5 = secondNum;
                 }
-                else if(regOne == "r6")
+                else if(regOne == "r6," || regOne == "R6,")
                 {
                     reg6 = secondNum;
                 }
-                else if(regOne == "r7")
+                else if(regOne == "r7," || regOne == "R7,")
                 {
                     reg7 = secondNum;
                 }
 
                 //Output all variables using cout, and make sure to convert all numbers to hex
                 cout << opToDo << " " << hex << regOne << ", 0x" << hex << secondNum << endl;
-                cout << "R0: 0x" << hex << reg0 << "R1: 0x" << hex << reg1 << "R2: 0x" << hex << reg2 << "R3: 0x" << hex << reg3 << endl;
-                cout << "R4: 0x" << hex << reg4 << "R5: 0x" << hex << reg5 << "R6: 0x" << hex << reg6 << "R7: 0x" << hex << reg7 << endl;
+                cout << "R0: 0x" << hex << reg0 << " R1: 0x" << hex << reg1 << " R2: 0x" << hex << reg2 << " R3: 0x" << hex << reg3 << endl;
+                cout << "R4: 0x" << hex << reg4 << " R5: 0x" << hex << reg5 << " R6: 0x" << hex << reg6 << " R7: 0x" << hex << reg7 << endl;
+                cout << "N: " << nFlag << " Z: " << zFlag << endl;
             }
         }
         //Check if the operation preformed is addition
         if(opToDo == "ADD" || opToDo == "ADDS")
         {
+
+            inputFile >> regOne >> regTwo >> regThree;
+            
             //Add the two hex numbers together
             newNum = firstNum + secondNum;
 
@@ -266,12 +266,11 @@ int readFile(string readList)
             cout << opToDo << " 0x" << hex << firstNum << " " << hex << secondNum << ": <0x" << newNum << ">" << endl;
         }
 
-        cout << "N: " << nFlag << " Z: " << zFlag << endl;
-
     }
-    
-    return 1;
+
+    return 0;
 }
+
 
 //set the n flags (if result is negative, set to 1)
 int nFlags(uint32_t num)
@@ -301,4 +300,112 @@ int zFlags(uint32_t num)
     {
         return 0;
     }
+}
+
+uint32_t findRegOne(string regOne)
+{
+    if(regOne == "r0," || regOne == "R0,")
+        {
+            return reg0;
+        }
+        else if(regOne == "r1," || regOne == "R1,")
+        {
+            return reg1;
+        }
+        else if(regOne == "r2," || regOne == "R2,")
+        {
+            return reg2;
+        }
+        else if(regOne == "r3," || regOne == "R3,")
+        {
+            return reg3;
+        }
+        else if(regOne == "r4," || regOne == "R4,")
+        {
+            return reg4;
+        }
+        else if(regOne == "r5," || regOne == "R5,")
+        {
+            return reg5;
+        }
+        else if(regOne == "r6," || regOne == "R6,")
+        {
+            return reg6;
+        }
+        else if(regOne == "r7," || regOne == "R7,")
+        {
+            return reg7;
+        }
+}
+
+uint32_t findRegTwo(string regOne)
+{
+    if(regOne == "r0," || regOne == "R0,")
+        {
+            return reg0;
+        }
+        else if(regOne == "r1," || regOne == "R1,")
+        {
+            return reg1;
+        }
+        else if(regOne == "r2," || regOne == "R2,")
+        {
+            return reg2;
+        }
+        else if(regOne == "r3," || regOne == "R3,")
+        {
+            return reg3;
+        }
+        else if(regOne == "r4," || regOne == "R4,")
+        {
+            return reg4;
+        }
+        else if(regOne == "r5," || regOne == "R5,")
+        {
+            return reg5;
+        }
+        else if(regOne == "r6," || regOne == "R6,")
+        {
+            return reg6;
+        }
+        else if(regOne == "r7," || regOne == "R7,")
+        {
+            return reg7;
+        }
+}
+
+void inputReg(string regOne, uint32_t input)
+{
+    if(regOne == "r0," || regOne == "R0,")
+        {
+            reg0 = input;
+        }
+        else if(regOne == "r1," || regOne == "R1,")
+        {
+            reg1 = input;
+        }
+        else if(regOne == "r2," || regOne == "R2,")
+        {
+            reg2 = input;
+        }
+        else if(regOne == "r3," || regOne == "R3,")
+        {
+            reg3 = input;
+        }
+        else if(regOne == "r4," || regOne == "R4,")
+        {
+            reg4 = input;
+        }
+        else if(regOne == "r5," || regOne == "R5,")
+        {
+            reg5 = input;
+        }
+        else if(regOne == "r6," || regOne == "R6,")
+        {
+            reg6 = input;
+        }
+        else if(regOne == "r7," || regOne == "R7,")
+        {
+            reg7 = input;
+        }
 }
