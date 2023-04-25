@@ -184,13 +184,14 @@ int main(int argc, char* argv[]) //argc/argv are included when running this prog
                     cFlag = 0;
                 }
                 int32_t check = newNum;
-                if(firstNum > 0 && secondNum > 0 && check < 0 ||firstNum < 0 && secondNum < 0 && check > 0 )
+                int32_t check1 = firstNum;
+                if(check > firstNum)
                 {
-                    vFlag = 1;
+                    vFlag = 0;
                 }
                 else
                 {
-                    vFlag = 0;
+                    vFlag = 1;
                 }
             }
 
@@ -308,7 +309,13 @@ int main(int argc, char* argv[]) //argc/argv are included when running this prog
             {
                 nFlag = nFlags(newNum);
                 zFlag = zFlags(newNum);
-                cFlag = 1;
+                if(firstNum - 1 > 0)
+                {
+                    cFlag = 1;
+                }
+                else{
+                    cFlag = 0;
+                }
             }
 
             cout << opToDo << " " << hex << regOne << " " << regTwo << " #" << secondNum << endl;
@@ -365,7 +372,7 @@ int main(int argc, char* argv[]) //argc/argv are included when running this prog
                 cFlag = 0;
             }
             int32_t check = newNum;
-            if(firstNum > 0 && secondNum > 0 && check < 0 ||firstNum < 0 && secondNum < 0 && check > 0 )
+            if(check > firstNum)
             {
                 vFlag = 1;
             }
